@@ -1,0 +1,69 @@
+@page
+@model AdminModel
+@{
+    ViewData["Title"] = "Gestione Permessi Utenti";
+}
+
+<h1>Gestione Permessi Utenti</h1>
+<p class="lead">Amministra i permessi di accesso per ogni utente</p>
+
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @Model.Message
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Email</th>
+                <th class="text-center">Apri Cancello</th>
+                <th class="text-center">Apri Cancelletto</th>
+                <th class="text-center">Apri Portone</th>
+                <th>Azioni</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model.Users)
+            {
+                <tr>
+                    <td>
+                        @user.Email
+                        @if (Model.AdminUserIds.Contains(user.UserId))
+                        {
+                            <span class="badge bg-danger ms-2">Admin</span>
+                        }
+                    </td>
+                    <form method="post" asp-page-handler="UpdatePermissions" asp-route-userId="@user.UserId">
+                        @Html.AntiForgeryToken()
+                        <td class="text-center">
+                            <input type="checkbox" class="form-check-input" name="canOpenCancello" value="true" 
+                                   @(user.CanOpenCancello ? "checked" : "") />
+                        </td>
+                        <td class="text-center">
+                            <input type="checkbox" class="form-check-input" name="canOpenCancelletto" value="true" 
+                                   @(user.CanOpenCancelletto ? "checked" : "") />
+                        </td>
+                        <td class="text-center">
+                            <input type="checkbox" class="form-check-input" name="canOpenPortone" value="true" 
+                                   @(user.CanOpenPortone ? "checked" : "") />
+                        </td>
+                        <td>
+                            <button type="submit" class="btn btn-primary btn-sm">Salva</button>
+                        </td>
+                    </form>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (!Model.Users.Any())
+{
+    <div class="alert alert-info">
+        Nessun utente registrato.
+    </div>
+}

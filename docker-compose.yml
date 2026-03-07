@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  guestaccess:
+    image: ${DOCKERHUB_USERNAME}/guestaccess:latest
+    container_name: guestaccess
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - AdminUser__Email=${ADMIN_EMAIL:-admin@localhost}
+      - AdminUser__Password=${ADMIN_PASSWORD:-Admin123!}
+      - Authentication__Google__ClientId=${GOOGLE_CLIENT_ID}
+      - Authentication__Google__ClientSecret=${GOOGLE_CLIENT_SECRET}
+      - Authentication__Microsoft__ClientId=${MICROSOFT_CLIENT_ID}
+      - Authentication__Microsoft__ClientSecret=${MICROSOFT_CLIENT_SECRET}
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    read_only: false
+    tmpfs:
+      - /tmp
+    networks:
+      - guestaccess-network
+
+networks:
+  guestaccess-network:
+    driver: bridge

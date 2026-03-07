@@ -1,0 +1,26 @@
+# Ignore build outputs
+bin/
+obj/
+out/
+
+# Ignore database files
+*.db
+*.db-shm
+*.db-wal
+
+# Ignore user-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Ignore VS Code
+.vscode/
+.vs/
+
+# Ignore secrets
+appsettings.*.json
+!appsettings.json
+
+# Ignore logs
+*.log
