@@ -22,18 +22,32 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => {
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-// Add external authentication
-builder.Services.AddAuthentication()
-    .AddGoogle(options =>
+// Add external authentication (only if configured)
+var authBuilder = builder.Services.AddAuthentication();
+
+// Only add Google authentication if credentials are provided
+var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
+var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(googleClientSecret))
+{
+    authBuilder.AddGoogle(options =>
     {
-        options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? "";
-        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? "";
-    })
-    .AddMicrosoftAccount(options =>
-    {
-        options.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"] ?? "";
-        options.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"] ?? "";
+        options.ClientId = googleClientId;
+        options.ClientSecret = googleClientSecret;
     });
+}
+
+// Only add Microsoft authentication if credentials are provided
+var microsoftClientId = builder.Configuration["Authentication:Microsoft:ClientId"];
+var microsoftClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"];
+if (!string.IsNullOrWhiteSpace(microsoftClientId) && !string.IsNullOrWhiteSpace(microsoftClientSecret))
+{
+    authBuilder.AddMicrosoftAccount(options =>
+    {
+        options.ClientId = microsoftClientId;
+        options.ClientSecret = microsoftClientSecret;
+    });
+}
 
 builder.Services.AddRazorPages(options =>
 {
