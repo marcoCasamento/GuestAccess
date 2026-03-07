@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using GuestAccess.Data;
 using GuestAccess.Models;
+using GuestAccess.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +21,11 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => {
     options.Password.RequireLowercase = true;
 })
     .AddRoles<IdentityRole>()
+    .AddSignInManager<AuditSignInManager>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+// Register audit log service
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 
 // Add external authentication (only if configured)
 var authBuilder = builder.Services.AddAuthentication();
@@ -53,12 +58,16 @@ builder.Services.AddRazorPages(options =>
 {
     options.Conventions.AuthorizePage("/Index");
     options.Conventions.AuthorizePage("/Admin", "AdminOnly");
+    options.Conventions.AuthorizePage("/Logs");
 });
 
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
 });
+
+// Add background service for log cleanup
+builder.Services.AddHostedService<GuestAccess.BackgroundServices.LogCleanupService>();
 
 var app = builder.Build();
 
