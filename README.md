@@ -59,16 +59,20 @@ docker run -d \
 
 ### Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `AdminUser__Email` | Admin user email | admin@localhost |
-| `AdminUser__Password` | Admin user password | Admin123! |
-| `Authentication__Google__ClientId` | Google OAuth Client ID | - |
-| `Authentication__Google__ClientSecret` | Google OAuth Secret | - |
-| `Authentication__Microsoft__ClientId` | Microsoft OAuth Client ID | - |
-| `Authentication__Microsoft__ClientSecret` | Microsoft OAuth Secret | - |
+| Variable | Description | Default | Required |
+|----------|-------------|---------|----------|
+| `AdminUser__Email` | Admin user email | admin@localhost | Yes |
+| `AdminUser__Password` | Admin user password | Admin123! | Yes |
+| `Authentication__Google__ClientId` | Google OAuth Client ID | - | No* |
+| `Authentication__Google__ClientSecret` | Google OAuth Secret | - | No* |
+| `Authentication__Microsoft__ClientId` | Microsoft OAuth Client ID | - | No* |
+| `Authentication__Microsoft__ClientSecret` | Microsoft OAuth Secret | - | No* |
+
+*External authentication is **optional**. If not configured, users can register/login with email and password only.
 
 ### External Authentication Setup
+
+**Note:** External authentication providers are completely optional. The application works fine with just email/password authentication.
 
 #### Google OAuth
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
