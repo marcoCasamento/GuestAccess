@@ -71,9 +71,25 @@ builder.Services.AddHostedService<GuestAccess.BackgroundServices.LogCleanupServi
 
 var app = builder.Build();
 
-// Initialize roles and admin user
+// Initialize database and create roles and admin user
 using (var scope = app.Services.CreateScope())
 {
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    
+    // Apply any pending migrations automatically
+    try
+    {
+        logger.LogInformation("Checking for pending database migrations...");
+        await context.Database.MigrateAsync();
+        logger.LogInformation("Database migrations applied successfully");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Error occurred while migrating the database");
+        throw;
+    }
+    
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
     
