@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   guestaccess:
-    image: ${DOCKERHUB_USERNAME}/guestaccess:latest
+    image: mcasamento/guestaccess:latest
     container_name: guestaccess
     ports:
       - "8080:8080"
@@ -17,6 +17,13 @@ services:
       - Authentication__Google__ClientSecret=${GOOGLE_CLIENT_SECRET}
       - Authentication__Microsoft__ClientId=${MICROSOFT_CLIENT_ID}
       - Authentication__Microsoft__ClientSecret=${MICROSOFT_CLIENT_SECRET}
+      - SmtpSettings__Host=${SMTP_HOST}
+      - SmtpSettings__Port=${SMTP_PORT:-587}
+      - SmtpSettings__Username=${SMTP_USERNAME}
+      - SmtpSettings__Password=${SMTP_PASSWORD}
+      - SmtpSettings__FromEmail=${SMTP_FROM_EMAIL}
+      - SmtpSettings__FromName=${SMTP_FROM_NAME:-GuestAccess}
+      - SmtpSettings__EnableSsl=${SMTP_ENABLE_SSL:-true}
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true

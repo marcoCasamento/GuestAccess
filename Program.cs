@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using GuestAccess.Data;
 using GuestAccess.Models;
@@ -68,6 +69,11 @@ builder.Services.AddAuthorization(options =>
 
 // Add background service for log cleanup
 builder.Services.AddHostedService<GuestAccess.BackgroundServices.LogCleanupService>();
+
+// Register SMTP email sender
+var smtpSettings = builder.Configuration.GetSection("SmtpSettings").Get<SmtpSettings>() ?? new SmtpSettings();
+builder.Services.AddSingleton(smtpSettings);
+builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 var app = builder.Build();
 
