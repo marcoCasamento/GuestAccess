@@ -1,4 +1,3 @@
-using GuestAccess.Models;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -48,9 +47,12 @@ public class EmailSender : IEmailSender
 
             using var client = new SmtpClient();
 
-            var socketOptions = _settings.EnableSsl
-                ? SecureSocketOptions.StartTls
-                : SecureSocketOptions.None;
+            // Auto-detect SSL mode: port 465 uses implicit SSL, others use STARTTLS
+            var socketOptions = _settings.Port == 465
+                ? SecureSocketOptions.SslOnConnect
+                : _settings.EnableSsl
+                    ? SecureSocketOptions.StartTls
+                    : SecureSocketOptions.None;
 
             await client.ConnectAsync(_settings.Host, _settings.Port, socketOptions);
 
@@ -66,8 +68,10 @@ public class EmailSender : IEmailSender
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send email to {Email}: {Subject}", email, subject);
-            throw;
+            // Log but do NOT re-throw — email failures must not crash registration or password reset.
+            // Users can still log in; admin can manually handle account confirmation if needed.
+            _logger.LogError(ex, "Failed to send email to {Email}: {Subject}. " +
+                "Check SmtpSettings configuration (Host, Port, SSL mode, credentials).", email, subject);
         }
     }
 }
