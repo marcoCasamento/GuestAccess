@@ -28,6 +28,12 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => {
 // Register audit log service
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 
+// Register Home Assistant gate service
+var haSettings = builder.Configuration.GetSection("HomeAssistant").Get<HomeAssistantSettings>() ?? new HomeAssistantSettings();
+builder.Services.AddSingleton(haSettings);
+builder.Services.AddHttpClient("HomeAssistant");
+builder.Services.AddTransient<IGateService, GateService>();
+
 // Add external authentication (only if configured)
 var authBuilder = builder.Services.AddAuthentication();
 

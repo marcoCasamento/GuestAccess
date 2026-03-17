@@ -24,6 +24,13 @@ services:
       - SmtpSettings__FromEmail=${SMTP_FROM_EMAIL}
       - SmtpSettings__FromName=${SMTP_FROM_NAME:-GuestAccess}
       - SmtpSettings__EnableSsl=${SMTP_ENABLE_SSL:-true}
+      - HomeAssistant__BaseUrl=${HA_BASE_URL}
+      - HomeAssistant__Cancello__WebhookPath=${HA_CANCELLO_WEBHOOK_PATH}
+      - HomeAssistant__Cancello__SecretToken=${HA_CANCELLO_SECRET_TOKEN}
+      - HomeAssistant__Cancelletto__WebhookPath=${HA_CANCELLETTO_WEBHOOK_PATH}
+      - HomeAssistant__Cancelletto__SecretToken=${HA_CANCELLETTO_SECRET_TOKEN}
+      - HomeAssistant__Portone__WebhookPath=${HA_PORTONE_WEBHOOK_PATH}
+      - HomeAssistant__Portone__SecretToken=${HA_PORTONE_SECRET_TOKEN}
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true

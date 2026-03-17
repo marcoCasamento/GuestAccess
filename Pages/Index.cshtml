@@ -62,7 +62,14 @@ else
     @if (!string.IsNullOrEmpty(Model.Message))
     {
         <div class="alert alert-success mt-4" role="alert">
-            @Model.Message
+            <i class="bi bi-check-circle"></i> @Model.Message
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger mt-4" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> @Model.ErrorMessage
         </div>
     }
 }

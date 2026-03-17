@@ -13,6 +13,8 @@ public class IndexModel : PageModel
     private readonly ILogger<IndexModel> _logger;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IAuditLogService _auditLogService;
+    private readonly IGateService _gateService;
+    private readonly HomeAssistantSettings _haSettings;
 
     public bool CanOpenCancello { get; set; }
     public bool CanOpenCancelletto { get; set; }
@@ -23,11 +25,21 @@ public class IndexModel : PageModel
     [TempData]
     public string? Message { get; set; }
 
-    public IndexModel(ILogger<IndexModel> logger, UserManager<ApplicationUser> userManager, IAuditLogService auditLogService)
+    [TempData]
+    public string? ErrorMessage { get; set; }
+
+    public IndexModel(
+        ILogger<IndexModel> logger,
+        UserManager<ApplicationUser> userManager,
+        IAuditLogService auditLogService,
+        IGateService gateService,
+        HomeAssistantSettings haSettings)
     {
         _logger = logger;
         _userManager = userManager;
         _auditLogService = auditLogService;
+        _gateService = gateService;
+        _haSettings = haSettings;
     }
 
     public async Task<IActionResult> OnGetAsync()
@@ -56,13 +68,15 @@ public class IndexModel : PageModel
         }
 
         var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
-        
-        _logger.LogInformation("USER: {Email} (ID: {UserId}) - ACTION: Opening Cancello", user.Email, user.Id);
-        Console.WriteLine($"🚪 APRI CANCELLO - User: {user.Email} - Time: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+        var email = user.Email ?? "Unknown";
 
-        await _auditLogService.LogActionAsync(user.Id, user.Email ?? "Unknown", "Apri Cancello", "Main gate opened", ipAddress);
+        var success = await _gateService.TriggerAsync(_haSettings.Cancello, email);
 
-        Message = "Cancello aperto con successo!";
+        await _auditLogService.LogActionAsync(user.Id, email, "Apri Cancello",
+            success ? "Main gate opened via webhook" : "Main gate webhook failed", ipAddress);
+
+        Message = success ? "Cancello aperto!" : null;
+        ErrorMessage = success ? null : "Errore: impossibile aprire il cancello. Riprovare.";
         return RedirectToPage();
     }
 
@@ -76,13 +90,15 @@ public class IndexModel : PageModel
         }
 
         var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+        var email = user.Email ?? "Unknown";
 
-        _logger.LogInformation("USER: {Email} (ID: {UserId}) - ACTION: Opening Cancelletto", user.Email, user.Id);
-        Console.WriteLine($"🚪 APRI CANCELLETTO - User: {user.Email} - Time: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+        var success = await _gateService.TriggerAsync(_haSettings.Cancelletto, email);
 
-        await _auditLogService.LogActionAsync(user.Id, user.Email ?? "Unknown", "Apri Cancelletto", "Small gate opened", ipAddress);
+        await _auditLogService.LogActionAsync(user.Id, email, "Apri Cancelletto",
+            success ? "Small gate opened via webhook" : "Small gate webhook failed", ipAddress);
 
-        Message = "Cancelletto aperto con successo!";
+        Message = success ? "Cancelletto aperto!" : null;
+        ErrorMessage = success ? null : "Errore: impossibile aprire il cancelletto. Riprovare.";
         return RedirectToPage();
     }
 
@@ -96,13 +112,15 @@ public class IndexModel : PageModel
         }
 
         var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+        var email = user.Email ?? "Unknown";
 
-        _logger.LogInformation("USER: {Email} (ID: {UserId}) - ACTION: Opening Portone", user.Email, user.Id);
-        Console.WriteLine($"🚪 APRI PORTONE - User: {user.Email} - Time: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+        var success = await _gateService.TriggerAsync(_haSettings.Portone, email);
 
-        await _auditLogService.LogActionAsync(user.Id, user.Email ?? "Unknown", "Apri Portone", "Main door opened", ipAddress);
+        await _auditLogService.LogActionAsync(user.Id, email, "Apri Portone",
+            success ? "Main door opened via webhook" : "Main door webhook failed", ipAddress);
 
-        Message = "Portone aperto con successo!";
+        Message = success ? "Portone aperto!" : null;
+        ErrorMessage = success ? null : "Errore: impossibile aprire il portone. Riprovare.";
         return RedirectToPage();
     }
 }
