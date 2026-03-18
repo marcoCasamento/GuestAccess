@@ -20,8 +20,9 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-# Create non-root user for security
-RUN useradd -m -s /bin/bash appuser && chown -R appuser:appuser /app
+# Create non-root user for security with a fixed UID/GID (1001).
+# The host volume ./data must be owned by this UID: sudo chown -R 1001:1001 ./data
+RUN groupadd -g 1001 appuser && useradd -u 1001 -g appuser -m -s /bin/bash appuser && chown -R appuser:appuser /app
 USER appuser
 
 COPY --from=publish /app/publish .

@@ -4,6 +4,7 @@ services:
   guestaccess:
     image: mcasamento/guestaccess:latest
     container_name: guestaccess
+    user: "1001:1001"
     ports:
       - "8080:8080"
     volumes:
@@ -11,8 +12,8 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
-      - AdminUser__Email=${ADMIN_EMAIL:-admin@localhost}
-      - AdminUser__Password=${ADMIN_PASSWORD:-Admin123!}
+      - AdminUser__Email=${ADMIN_EMAIL}
+      - AdminUser__Password=${ADMIN_PASSWORD}
       - Authentication__Google__ClientId=${GOOGLE_CLIENT_ID}
       - Authentication__Google__ClientSecret=${GOOGLE_CLIENT_SECRET}
       - Authentication__Microsoft__ClientId=${MICROSOFT_CLIENT_ID}
